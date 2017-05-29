@@ -172,33 +172,37 @@ public class GDocsModule {
 			serviceSheets.spreadsheets().values().batchUpdate(childSpreadSheetId, oRequest)
 					//.setPrettyPrint(true)
 					.execute();
-		//	System.out.println("" +
-				//	"Write to: "+row.get(0).get(1)+" " + dateValues.get(0).get(0));
+			System.out.println("" +
+					"Write : "+row.get(1)+" " + dateValues.get(0).get(0));
 
 		}
-		else System.out.println( dateValues.get(0).get(0) +"is present");
+		else System.out.println( "Is present "+row.get(1)+" " + dateValues.get(0).get(0));
 		}
 
 
 
+private static boolean isPresentSheet(List<Sheet> workSheetList,String nameSheet ){
+	for (Sheet sheet : workSheetList){
+		System.out.print(sheet.getProperties().getTitle());
+		if(sheet.getProperties().getTitle().equals(nameSheet))
+			return true;
+	}
+	return false;
+}
 
 	public static void beatSheets(String link, String startMounth, String lastMounth, int startYear, int lastYear) throws Exception {
-	/*	List<String> oldSheets = Files.lines(Paths.get(String.valueOf(file)), StandardCharsets.UTF_8)
-				.collect(Collectors.toList());
-		Map<String, String> SpreedSheetNameId = oldSheets.stream().collect(Collectors.toMap
-				(s -> s.substring(0, s.indexOf('|')), s -> s.substring(s.indexOf('|') + 1, s.length())));
-	*/
-	Drive serviceDrive = getDriveService();
-		//	if (oldSheets != null) {oldSheets.forEach(sheet->deleteFile(serviceDrive, sheet));}
+		Drive serviceDrive = getDriveService();
 		FileWriter WRITER = new FileWriter(file, true);
 		Sheets serviceSheets = getSheetsService();
 		String spreadsheetId = getSheetId(link);
-		//System.out.println("Credentials saved to " + DATA_STORE_DIR.getAbsolutePath());
-	    //System.out.println("Spreadsheet ID: " + spreadsheetId);
+			List<List<Object>> headerValues = readValue(serviceSheets, spreadsheetId, headerRange).getValues();
 
-		List<List<Object>> headerValues = readValue(serviceSheets, spreadsheetId, headerRange).getValues();
-		for (int i = startYear; i <= lastYear; i++)
+
+						for (int i = startYear; i <= lastYear; i++)
 				for (int j = mounth.indexOf(startMounth); j <= mounth.indexOf(lastMounth); j++) {
+					Spreadsheet response1= serviceSheets.spreadsheets().get(spreadsheetId).setIncludeGridData (false).execute ();
+					List<Sheet> workSheetList = response1.getSheets();
+					if(isPresentSheet(workSheetList,mounth.get(j)+" "+String.valueOf(i))){
 				List<String>  oldSheets = Files.lines(Paths.get(String.valueOf(file)), StandardCharsets.UTF_8)
 						.collect(Collectors.toList());
 				Map<String, String> SpreedSheetNameId = oldSheets.stream().collect(Collectors.toMap
@@ -232,7 +236,8 @@ public class GDocsModule {
 						}
 					});
 				}
-			}
+					}
+						}
 	}
 
 }
