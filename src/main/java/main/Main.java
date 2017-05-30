@@ -63,7 +63,7 @@ public class Main {
         }
 
             try {
-                System.out.println("tart making report please wait\n");
+                System.out.println("Start making report please wait\n");
                     GDocsModule.beatSheets(LINK,period[0],period[1],Integer.parseInt(period[2]),Integer.parseInt(period[3]));
                     System.out.println("Finish program");
                 } catch (Exception e) {
