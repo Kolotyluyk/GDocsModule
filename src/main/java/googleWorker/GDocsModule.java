@@ -20,6 +20,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -50,7 +51,7 @@ public class GDocsModule {
 	static String exchangeRateRange = "T3:T3";
 
 	//static String formulRange = "O4:Z4";
-	static List<String> mounth = Arrays.asList("Січень", "Лютий", "Березень", "Квітень", "Травень", "Червень", "Липень", "Серпень", "Вересень", "Жовтень", "Листопад", "Грудень");
+	public static List<String> mounth = Arrays.asList("Січень", "Лютий", "Березень", "Квітень", "Травень", "Червень", "Липень", "Серпень", "Вересень", "Жовтень", "Листопад", "Грудень");
 
 
 	static {
@@ -181,7 +182,42 @@ public class GDocsModule {
 
 
 
-private static boolean isPresentSheet(List<Sheet> workSheetList,String nameSheet ){
+	public static String[] getWorkSheetPeriod(String link) throws Exception {
+		Sheets serviceSheets = getSheetsService();
+		String spreadsheetId = getSheetId(link);
+		Spreadsheet response1= serviceSheets.spreadsheets().get(spreadsheetId).setIncludeGridData (false).execute ();
+		List<Sheet> workSheetList = response1.getSheets();
+		String begginingPeriodMounth="Січень";
+		String finishingPeriodMounth="Січень";
+		String begginingPeriodYear="3000";
+		String finishingPeriodYear=String.valueOf(Integer.SIZE);
+		LocalDateTime beginingDate = LocalDateTime.of(Integer.parseInt(begginingPeriodYear),mounth.indexOf(begginingPeriodMounth)+1,1,1,1);
+		LocalDateTime finishingDate = LocalDateTime.of(Integer.parseInt(finishingPeriodYear),mounth.indexOf(finishingPeriodMounth)+1,1,1,1);
+		for (Sheet sheet : workSheetList) {
+			String period=sheet.getProperties().getTitle();
+			String[] splitedPeriod=period.split(" ");
+			LocalDateTime date = LocalDateTime.of(Integer.parseInt(splitedPeriod[1]),mounth.indexOf(splitedPeriod[0])+1,1,1,1);
+			if(date.isAfter(finishingDate)) {
+				finishingPeriodMounth=splitedPeriod[0];
+				finishingPeriodYear=splitedPeriod[1];
+				finishingDate=date;
+			}
+			if(date.isBefore(beginingDate)) {
+				begginingPeriodMounth=splitedPeriod[0];
+				begginingPeriodYear=splitedPeriod[1];
+				beginingDate=date;
+			}
+		}
+		String[] result=new String[4];
+		result[0]=begginingPeriodMounth;
+		result[1]=finishingPeriodMounth;
+		result[2]=begginingPeriodYear;
+		result[3]=finishingPeriodYear;
+			return result;
+	}
+
+
+	private static boolean isPresentSheet(List<Sheet> workSheetList,String nameSheet ){
 	for (Sheet sheet : workSheetList){
 		System.out.print(sheet.getProperties().getTitle());
 		if(sheet.getProperties().getTitle().equals(nameSheet))
