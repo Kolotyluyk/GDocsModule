@@ -41,8 +41,7 @@ public class Main {
         String comand = in.nextLine();
         String[] period=null;
         //check input data
-        boolean reportForPeriod=false;
-        switch (comand)
+         switch (comand)
         {
             case "whole" :
                 try {
@@ -60,12 +59,12 @@ public class Main {
                 break;
             default:
                 period=formatingPeriod(comand.split(" "));
-                reportForPeriod=true;
-                break;
+                  break;
         }
 
             try {
-                    GDocsModule.beatSheets(LINK,period[0],period[1],Integer.parseInt(period[2]),Integer.parseInt(period[3]),reportForPeriod);
+                System.out.println("tart making report please wait\n");
+                    GDocsModule.beatSheets(LINK,period[0],period[1],Integer.parseInt(period[2]),Integer.parseInt(period[3]));
                     System.out.println("Finish program");
                 } catch (Exception e) {
 

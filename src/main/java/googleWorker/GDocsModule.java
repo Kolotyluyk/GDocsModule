@@ -117,13 +117,12 @@ public class GDocsModule {
 		}
 
 	private static String createSpreadSheet(List<ValueRange> childList, List<Object> row, List<List<Object>> headerValues,
-											FileWriter WRITER, Sheets serviceSheets, String headerRange,boolean reportForPeriod,
-											String period) throws IOException {
+											FileWriter WRITER, Sheets serviceSheets, String headerRange
+											) throws IOException {
 		headerValues.get(0).set(19,"Кількіть днів");
 		ValueRange headValueRange = new ValueRange().setRange(headerRange).setValues(headerValues);
 		childList.add(headValueRange);
 		String nameSheet=row.get(1).toString();
-		if (reportForPeriod) nameSheet+=period;
 		Spreadsheet spreadsheet = new Spreadsheet().setProperties(new SpreadsheetProperties()
 				.setTitle(nameSheet).setAutoRecalc("ON_CHANGE"));
 		String childSpreadSheetId = serviceSheets
@@ -133,7 +132,6 @@ public class GDocsModule {
 				.getSpreadsheetId();
 		WRITER.write(nameSheet + "|" + childSpreadSheetId + "\n");
 		WRITER.flush();
-
 		System.out.println("Document " + nameSheet + " successfully create");
 		return childSpreadSheetId;
 	}
@@ -159,10 +157,11 @@ public class GDocsModule {
 				    for (List<Object> list: dataValues) {
 				    if(list.get(0).equals(dateValues.get(0).get(0)))
 				    {flag=true;
+						size=dataValues.indexOf(list);
 						break;}
 			}
 			}
-			if (!flag){
+		//	if (!flag){
 			ValueRange dataValueRange = new ValueRange().setRange("A" + String.valueOf(size + 4) + ":Z1000").setValues(pasteData);
 			childList.add(dataValueRange);
 			BatchUpdateValuesRequest oRequest = new BatchUpdateValuesRequest()
@@ -172,8 +171,8 @@ public class GDocsModule {
 						.execute();
 			System.out.println("" +
 					"Write : "+row.get(1)+" " + dateValues.get(0).get(0));
-		}
-		else System.out.println( "Is present "+row.get(1)+" " + dateValues.get(0).get(0));
+	//	}
+	//	else System.out.println( "Is present "+row.get(1)+" " + dateValues.get(0).get(0));
 		}
 
 
@@ -215,26 +214,27 @@ public class GDocsModule {
 
 	private static boolean isPresentSheet(List<Sheet> workSheetList,String nameSheet ){
 	for (Sheet sheet : workSheetList){
-		System.out.print(sheet.getProperties().getTitle());
+		//System.out.print(sheet.getProperties().getTitle());
 		if(sheet.getProperties().getTitle().equals(nameSheet))
 			return true;
 	}
 	return false;
 }
 
-	public static void beatSheets(String link, String startMounth, String lastMounth, int startYear, int lastYear,boolean reportForPeriod) throws Exception {
+	public static void beatSheets(String link, String startMounth, String lastMounth, int startYear, int lastYear) throws Exception {
 		Drive serviceDrive = getDriveService();
 		FileWriter WRITER = new FileWriter(file, true);
 		Sheets serviceSheets = getSheetsService();
 		String spreadsheetId = getSheetId(link);
 			List<List<Object>> headerValues = readValue(serviceSheets, spreadsheetId, headerRange).getValues();
-		//stats cycle of period
+
+		Spreadsheet response1= serviceSheets.spreadsheets().get(spreadsheetId).setIncludeGridData(false).execute();
+		List<Sheet> workSheetList = response1.getSheets();
+
 		for (int i = startYear; i <= lastYear; i++)
 			    for (int j = mounth.indexOf(startMounth); j <= mounth.indexOf(lastMounth); j++)
 				{
-					Spreadsheet response1= serviceSheets.spreadsheets().get(spreadsheetId).setIncludeGridData (false).execute ();
-					List<Sheet> workSheetList = response1.getSheets();
-					//check
+
 					if(isPresentSheet(workSheetList,mounth.get(j)+" "+String.valueOf(i))){
 						List<String>  oldSheets = Files.lines(Paths.get(String.valueOf(file)), StandardCharsets.UTF_8)
 								.collect(Collectors.toList());
@@ -259,11 +259,10 @@ public class GDocsModule {
 							List<ValueRange> childList = new ArrayList<ValueRange>();
 							String childId = null;
 							String nameSheet=row.get(1).toString();
-							if (reportForPeriod) nameSheet+=startMounth+" "+startYear+"-"+ lastMounth+" "+lastYear;
 							if (SpreedSheetNameId.containsKey(nameSheet)) childId = SpreedSheetNameId.get(nameSheet);
 							else try {
 								childId = createSpreadSheet(childList, row, headerValues, WRITER, serviceSheets,
-									headerRange,reportForPeriod, startMounth+" "+startYear+"-"+ lastMounth+" "+lastYear);
+									headerRange);
 								} catch (IOException e) {
 								e.printStackTrace();
 								}
