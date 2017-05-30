@@ -53,7 +53,6 @@ public class GDocsModule {
 	//static String formulRange = "O4:Z4";
 	public static List<String> mounth = Arrays.asList("Січень", "Лютий", "Березень", "Квітень", "Травень", "Червень", "Липень", "Серпень", "Вересень", "Жовтень", "Листопад", "Грудень");
 
-
 	static {
 		try {
 			HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
@@ -119,21 +118,24 @@ public class GDocsModule {
 		}
 
 	private static String createSpreadSheet(List<ValueRange> childList, List<Object> row, List<List<Object>> headerValues,
-											FileWriter WRITER, Sheets serviceSheets, String headerRange) throws IOException {
+											FileWriter WRITER, Sheets serviceSheets, String headerRange,boolean reportForPeriod,
+											String period) throws IOException {
 		headerValues.get(0).set(19,"Кількіть днів");
 		ValueRange headValueRange = new ValueRange().setRange(headerRange).setValues(headerValues);
 		childList.add(headValueRange);
-
+		String nameSheet=row.get(1).toString();
+		if (reportForPeriod) nameSheet+=period;
 		Spreadsheet spreadsheet = new Spreadsheet().setProperties(new SpreadsheetProperties()
-				.setTitle(row.get(1).toString()).setAutoRecalc("ON_CHANGE"));
+				.setTitle(nameSheet).setAutoRecalc("ON_CHANGE"));
 		String childSpreadSheetId = serviceSheets
 				.spreadsheets()
 				.create(spreadsheet)
 				.execute()
 				.getSpreadsheetId();
-		WRITER.write(row.get(1).toString() + "|" + childSpreadSheetId + "\n");
+		WRITER.write(nameSheet + "|" + childSpreadSheetId + "\n");
 		WRITER.flush();
-		System.out.println("Document " + row.get(1).toString() + " successfully create");
+
+		System.out.println("Document " + nameSheet + " successfully create");
 		return childSpreadSheetId;
 	}
 
@@ -161,7 +163,6 @@ public class GDocsModule {
 						break;}
 			}
 			}
-
 			if (!flag){
 			ValueRange dataValueRange = new ValueRange().setRange("A" + String.valueOf(size + 4) + ":Z1000").setValues(pasteData);
 			//header id sheets not exist
@@ -187,8 +188,8 @@ public class GDocsModule {
 		String spreadsheetId = getSheetId(link);
 		Spreadsheet response1= serviceSheets.spreadsheets().get(spreadsheetId).setIncludeGridData (false).execute ();
 		List<Sheet> workSheetList = response1.getSheets();
-		String begginingPeriodMounth="Січень";
-		String finishingPeriodMounth="Січень";
+		String begginingPeriodMounth = mounth.get(0);
+		String finishingPeriodMounth = mounth.get(0);
 		String begginingPeriodYear="3000";
 		String finishingPeriodYear=String.valueOf(Integer.SIZE);
 		LocalDateTime beginingDate = LocalDateTime.of(Integer.parseInt(begginingPeriodYear),mounth.indexOf(begginingPeriodMounth)+1,1,1,1);
@@ -226,7 +227,7 @@ public class GDocsModule {
 	return false;
 }
 
-	public static void beatSheets(String link, String startMounth, String lastMounth, int startYear, int lastYear) throws Exception {
+	public static void beatSheets(String link, String startMounth, String lastMounth, int startYear, int lastYear,boolean reportForPeriod) throws Exception {
 		Drive serviceDrive = getDriveService();
 		FileWriter WRITER = new FileWriter(file, true);
 		Sheets serviceSheets = getSheetsService();
@@ -258,10 +259,13 @@ public class GDocsModule {
 					dataValues.forEach(row -> {
 						List<ValueRange> childList = new ArrayList<ValueRange>();
 						String childId = null;
-						if (SpreedSheetNameId.containsKey(row.get(1).toString()))
-							childId = SpreedSheetNameId.get(row.get(1).toString());
+						String nameSheet=row.get(1).toString();
+						if (reportForPeriod) nameSheet+=startMounth+" "+startYear+"-"+ lastMounth+" "+lastYear;
+						if (SpreedSheetNameId.containsKey(nameSheet))
+							childId = SpreedSheetNameId.get(nameSheet);
 						else try {
-							childId = createSpreadSheet(childList, row, headerValues, WRITER, serviceSheets, headerRange);
+							childId = createSpreadSheet(childList, row, headerValues, WRITER, serviceSheets,
+									headerRange,reportForPeriod, startMounth+" "+startYear+"-"+ lastMounth+" "+lastYear);
 						} catch (IOException e) {
 							e.printStackTrace();
 						}
@@ -275,5 +279,4 @@ public class GDocsModule {
 					}
 						}
 	}
-
 }

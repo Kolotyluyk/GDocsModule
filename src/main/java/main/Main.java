@@ -33,16 +33,14 @@ public class Main {
 
 	public static void main(String[] args) {
 		GDocsModule gDocsModule = new GDocsModule();
-
 		Scanner in = new Scanner(System.in);
-      //  System.out.print("Enter Link Google Sheets: for example https://docs.google.com/spreadsheets/d/1YmXTemgS52vRo4f98-nGlnt9acP7bh3kzLfr9gpK9lA/edit#gid=806350235\n");
-      //  String LINK = in.nextLine();
-            String LINK = "https://docs.google.com/spreadsheets/d/1YmXTemgS52vRo4f98-nGlnt9acP7bh3kzLfr9gpK9lA/edit#gid=806350235";
-
-        System.out.print("Enter period: ");
+        System.out.print("Enter Link Google Sheets: for example https://docs.google.com/spreadsheets/d/1YmXTemgS52vRo4f98-nGlnt9acP7bh3kzLfr9gpK9lA/edit#gid=806350235\n");
+       String LINK = in.nextLine();
+        System.out.print("\nEnter command:");
         String comand = in.nextLine();
         String[] period=null;
         //check input data
+        boolean reportForPeriod=false;
         switch (comand)
         {
             case "whole" :
@@ -60,41 +58,17 @@ public class Main {
                 }
                 break;
             default:
-                period=formatingPeriod(period);
-
-      break;
+                period=formatingPeriod(comand.split(" "));
+                reportForPeriod=true;
+                break;
         }
             try {
-                    GDocsModule.beatSheets(LINK,period[0],period[1],Integer.parseInt(period[2]),Integer.parseInt(period[3]));
+                    GDocsModule.beatSheets(LINK,period[0],period[1],Integer.parseInt(period[2]),Integer.parseInt(period[3]),reportForPeriod);
                     System.out.println("Finish program");
                 } catch (Exception e) {
 
                     e.printStackTrace();
                 }
-
-
-
-
-/*
-        System.out.print("Enter mounth of beggin period:\n");
-        String beginPeriod = in.nextLine();
-        System.out.print("\nEnter mounth of finish period:\n");
-        String finishPeriod = in.nextLine();
-        System.out.print("\nEnter year of finish period:\n");
-        int beginYear = in.nextInt();
-        System.out.print("\nEnter year of finish period: \n");
-        int finishYear = in.nextInt();
-        //String LINK = "https://docs.google.com/spreadsheets/d/1YmXTemgS52vRo4f98-nGlnt9acP7bh3kzLfr9gpK9lA/edit#gid=806350235";
-
-		try {
-	//		GDocsModule.beatSheets(LINK,period[0],finishPeriod,beginYear,finishYear);
-			System.out.println("Finish program");
-		} catch (Exception e) {
-
-			e.printStackTrace();
-		}
-
-*/
 	}
 
 }
