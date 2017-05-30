@@ -34,7 +34,8 @@ public class Main {
 	public static void main(String[] args) {
 		GDocsModule gDocsModule = new GDocsModule();
 		Scanner in = new Scanner(System.in);
-        System.out.print("Enter Link Google Sheets: for example https://docs.google.com/spreadsheets/d/1YmXTemgS52vRo4f98-nGlnt9acP7bh3kzLfr9gpK9lA/edit#gid=806350235\n");
+        System.out.print("Enter Link Google Sheets: for example " +
+                "https://docs.google.com/spreadsheets/d/1YmXTemgS52vRo4f98-nGlnt9acP7bh3kzLfr9gpK9lA/edit#gid=806350235\n");
        String LINK = in.nextLine();
         System.out.print("\nEnter command:");
         String comand = in.nextLine();
@@ -62,6 +63,7 @@ public class Main {
                 reportForPeriod=true;
                 break;
         }
+
             try {
                     GDocsModule.beatSheets(LINK,period[0],period[1],Integer.parseInt(period[2]),Integer.parseInt(period[3]),reportForPeriod);
                     System.out.println("Finish program");

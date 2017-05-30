@@ -43,14 +43,14 @@ public class GDocsModule {
 	private static final Pattern sheetId = Pattern.compile(patternId);
 	private static String SHEET_ID = "";
 
-
+//value of range
 	static String headerRange = "A3:T3";
 	static String dataRange = "A4:Z1000";
 	static String dateRange = "B1:B1";
 	static String countOfDayRange = "T1:T1";
 	static String exchangeRateRange = "T3:T3";
 
-	//static String formulRange = "O4:Z4";
+
 	public static List<String> mounth = Arrays.asList("Січень", "Лютий", "Березень", "Квітень", "Травень", "Червень", "Липень", "Серпень", "Вересень", "Жовтень", "Листопад", "Грудень");
 
 	static {
@@ -62,7 +62,7 @@ public class GDocsModule {
 			System.exit(1);
 		}
 	}
-
+//connect to google doc using client_id and client_secret from client_secret.json
 	private static Credential authorize() throws Exception {
 		InputStream in = GDocsModule.class.getResourceAsStream("/client_secret.json");
 		GoogleClientSecrets clientSecrets =
@@ -75,8 +75,6 @@ public class GDocsModule {
 						.build();
 		Credential credential = new AuthorizationCodeInstalledApp(
 				flow, new LocalServerReceiver()).authorize("user");
-		//System.out.println(
-		//		"Credentials saved to " + DATA_STORE_DIR.getAbsolutePath());
 		return credential;
 	}
 
@@ -110,6 +108,7 @@ public class GDocsModule {
 		return SHEET_ID;
 	}
 
+	//read from google sheet
 	private static ValueRange readValue(Sheets serviceSheets, String spreadsheetId, String range) throws IOException {
 		return serviceSheets.spreadsheets().values()
 				.get(spreadsheetId, range)
@@ -165,18 +164,14 @@ public class GDocsModule {
 			}
 			if (!flag){
 			ValueRange dataValueRange = new ValueRange().setRange("A" + String.valueOf(size + 4) + ":Z1000").setValues(pasteData);
-			//header id sheets not exist
-
 			childList.add(dataValueRange);
 			BatchUpdateValuesRequest oRequest = new BatchUpdateValuesRequest()
 					.setValueInputOption("RAW")
 					.setData(childList);
 			serviceSheets.spreadsheets().values().batchUpdate(childSpreadSheetId, oRequest)
-					//.setPrettyPrint(true)
-					.execute();
+						.execute();
 			System.out.println("" +
 					"Write : "+row.get(1)+" " + dateValues.get(0).get(0));
-
 		}
 		else System.out.println( "Is present "+row.get(1)+" " + dateValues.get(0).get(0));
 		}
@@ -233,50 +228,54 @@ public class GDocsModule {
 		Sheets serviceSheets = getSheetsService();
 		String spreadsheetId = getSheetId(link);
 			List<List<Object>> headerValues = readValue(serviceSheets, spreadsheetId, headerRange).getValues();
-
-
-						for (int i = startYear; i <= lastYear; i++)
-				for (int j = mounth.indexOf(startMounth); j <= mounth.indexOf(lastMounth); j++) {
+		//stats cycle of period
+		for (int i = startYear; i <= lastYear; i++)
+			    for (int j = mounth.indexOf(startMounth); j <= mounth.indexOf(lastMounth); j++)
+				{
 					Spreadsheet response1= serviceSheets.spreadsheets().get(spreadsheetId).setIncludeGridData (false).execute ();
 					List<Sheet> workSheetList = response1.getSheets();
+					//check
 					if(isPresentSheet(workSheetList,mounth.get(j)+" "+String.valueOf(i))){
-				List<String>  oldSheets = Files.lines(Paths.get(String.valueOf(file)), StandardCharsets.UTF_8)
-						.collect(Collectors.toList());
-				Map<String, String> SpreedSheetNameId = oldSheets.stream().collect(Collectors.toMap
-						(s -> s.substring(0, s.indexOf('|')), s -> s.substring(s.indexOf('|') + 1, s.length())));
-
-				List<List<Object>> dataValues = readValue(serviceSheets,
-						spreadsheetId, mounth.get(j)+" "+String.valueOf(i)+"!" + dataRange).getValues();
-				List<List<Object>> dateValues = readValue(serviceSheets,
-						spreadsheetId, mounth.get(j)+" "+String.valueOf(i)+"!" + dateRange).getValues();
-					List<List<Object>> countOfDayValues = readValue(serviceSheets,
-						spreadsheetId, mounth.get(j)+" "+String.valueOf(i)+"!" + countOfDayRange).getValues();
-				List<List<Object>> exchangeRateValues = readValue(serviceSheets,
-						spreadsheetId, mounth.get(j)+" "+String.valueOf(i)+"!" + exchangeRateRange).getValues();
-				if (dataValues == null || dataValues.size() == 0) {
-					System.out.println("No data found.");
-				} else {
-					dataValues.forEach(row -> {
-						List<ValueRange> childList = new ArrayList<ValueRange>();
-						String childId = null;
-						String nameSheet=row.get(1).toString();
-						if (reportForPeriod) nameSheet+=startMounth+" "+startYear+"-"+ lastMounth+" "+lastYear;
-						if (SpreedSheetNameId.containsKey(nameSheet))
-							childId = SpreedSheetNameId.get(nameSheet);
-						else try {
-							childId = createSpreadSheet(childList, row, headerValues, WRITER, serviceSheets,
+						List<String>  oldSheets = Files.lines(Paths.get(String.valueOf(file)), StandardCharsets.UTF_8)
+								.collect(Collectors.toList());
+						Map<String, String> SpreedSheetNameId = oldSheets.stream().collect(Collectors.toMap
+						        (s -> s.substring(0, s.indexOf('|')), s -> s.substring(s.indexOf('|') + 1, s.length())));
+						//read values from sheet in preset range
+						List<List<Object>> dataValues = readValue(serviceSheets,
+							spreadsheetId, mounth.get(j)+" "+String.valueOf(i)+"!" + dataRange).getValues();
+						List<List<Object>> dateValues = readValue(serviceSheets,
+							spreadsheetId, mounth.get(j)+" "+String.valueOf(i)+"!" + dateRange).getValues();
+						List<List<Object>> countOfDayValues = readValue(serviceSheets,
+							spreadsheetId, mounth.get(j)+" "+String.valueOf(i)+"!" + countOfDayRange).getValues();
+						List<List<Object>> exchangeRateValues = readValue(serviceSheets,
+							spreadsheetId, mounth.get(j)+" "+String.valueOf(i)+"!" + exchangeRateRange).getValues();
+						//check read data not empty
+						if (dataValues == null || dataValues.size() == 0) {
+							System.out.println("No data found.");
+						} else
+							{
+							dataValues.forEach(row ->
+							{
+							List<ValueRange> childList = new ArrayList<ValueRange>();
+							String childId = null;
+							String nameSheet=row.get(1).toString();
+							if (reportForPeriod) nameSheet+=startMounth+" "+startYear+"-"+ lastMounth+" "+lastYear;
+							if (SpreedSheetNameId.containsKey(nameSheet)) childId = SpreedSheetNameId.get(nameSheet);
+							else try {
+								childId = createSpreadSheet(childList, row, headerValues, WRITER, serviceSheets,
 									headerRange,reportForPeriod, startMounth+" "+startYear+"-"+ lastMounth+" "+lastYear);
-						} catch (IOException e) {
-							e.printStackTrace();
+								} catch (IOException e) {
+								e.printStackTrace();
+								}
+							try {
+							writeValueToSheet(row,dateValues,countOfDayValues,exchangeRateValues, childList, dataRange,
+									          serviceSheets, childId);
+							} catch (IOException e) {
+								e.printStackTrace();
+							}
+							});
 						}
-						try {
-							writeValueToSheet(row,dateValues,countOfDayValues,exchangeRateValues, childList, dataRange, serviceSheets, childId);
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
-					});
-				}
 					}
-						}
+				}
 	}
 }
