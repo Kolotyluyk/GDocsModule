@@ -6,7 +6,6 @@ package googleWorker;
 public enum SheetRange {
     HEADER_RANGE("A3:T3"),
     DATA_RANGE("A4:Z1000"),
-    DATE_RANGE( "B1:B1"),
     COUNT_OF_DAY_RANGE("T1:T1"),
     EXCHANGE_RATE_RANGE("T3:T3");
 

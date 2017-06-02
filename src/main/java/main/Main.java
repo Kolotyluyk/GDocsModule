@@ -9,7 +9,7 @@ import java.util.Scanner;
 public class Main {
 
 
-    private static LocalDate getStartDateperiod(String[] period){
+    private static LocalDate getStartDatePeriod(String[] period){
         //check input  start data
         int year = YearMonth.now().getYear();
         int month = 1;
@@ -34,7 +34,7 @@ public class Main {
         return LocalDate.of(year,1,1);
     }
 
-    private static LocalDate getFinishDateperiod(String[] period){
+    private static LocalDate getFinishDatePeriod(String[] period){
         //check input  finish data
         int month = YearMonth.now().getMonthValue();
         int year = YearMonth.now().getYear();
@@ -80,8 +80,8 @@ public class Main {
         String finishPeriod = in.nextLine();
 
 
-        LocalDate dateOfStartPeriod=getStartDateperiod(startPeriod.split(" "));
-        LocalDate dateOfFinishPeriod=getFinishDateperiod(finishPeriod.split(" "));
+        LocalDate dateOfStartPeriod= getStartDatePeriod(startPeriod.split(" "));
+        LocalDate dateOfFinishPeriod= getFinishDatePeriod(finishPeriod.split(" "));
 
 
             try {
