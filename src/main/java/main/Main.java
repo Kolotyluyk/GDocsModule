@@ -8,35 +8,9 @@ import java.util.Scanner;
 
 public class Main {
 
-
-    private static LocalDate getStartDatePeriod(String[] period){
-        //check input  start data
-        int year = YearMonth.now().getYear();
-        int month = 1;
-        if(period.length==1 )
-        {try {
-            if(!period[0].isEmpty())
-            month=Integer.parseInt(period[0]);
-            }catch (Exception e){
-                System.out.println("You write incorrect month start period");
-            }
-            return LocalDate.of(year, month,1);
-        }
-        else
-        if (period.length==2){
-            try {
-                month=Integer.parseInt(period[0]);
-            }catch (Exception e){
-                System.out.println("You write incorrect month start period");
-            }
-            return LocalDate.of(Integer.parseInt(period[0]),month,1);
-        }
-        return LocalDate.of(year,1,1);
-    }
-
-    private static LocalDate getFinishDatePeriod(String[] period){
+    private static LocalDate getDatePeriod(String[] period, int defaultMonth){
         //check input  finish data
-        int month = YearMonth.now().getMonthValue();
+        int month =defaultMonth;
         int year = YearMonth.now().getYear();
 
         if(period.length==1 )
@@ -51,6 +25,7 @@ public class Main {
         if (period.length==2){
             try {
                 month=Integer.parseInt(period[0]);
+                year=Integer.parseInt(period[1]);;
             }catch (Exception e){
                 System.out.println("You write incorrect month start period");
             }
@@ -80,8 +55,9 @@ public class Main {
         String finishPeriod = in.nextLine();
 
 
-        LocalDate dateOfStartPeriod= getStartDatePeriod(startPeriod.split(" "));
-        LocalDate dateOfFinishPeriod= getFinishDatePeriod(finishPeriod.split(" "));
+        LocalDate dateOfStartPeriod= getDatePeriod(finishPeriod.split(" "),1);
+        LocalDate dateOfFinishPeriod= getDatePeriod(finishPeriod.split(" "),YearMonth.now().getMonthValue());
+
 
 
             try {
