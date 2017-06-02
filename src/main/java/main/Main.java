@@ -18,7 +18,7 @@ public class Main {
             if(!period[0].isEmpty())
             month=Integer.parseInt(period[0]);
             }catch (Exception e){
-                System.out.println("You write incorrect month finish period");
+                System.out.println("You write incorrect month of period");
             }
            }
         else
@@ -27,7 +27,7 @@ public class Main {
                 month=Integer.parseInt(period[0]);
                 year=Integer.parseInt(period[1]);;
             }catch (Exception e){
-                System.out.println("You write incorrect month start period");
+                System.out.println("You write incorrect month or year of period");
             }
              }
 
@@ -54,12 +54,8 @@ public class Main {
         System.out.print("\nEnter finish period:");
         String finishPeriod = in.nextLine();
 
-
         LocalDate dateOfStartPeriod= getDatePeriod(finishPeriod.split(" "),1);
         LocalDate dateOfFinishPeriod= getDatePeriod(finishPeriod.split(" "),YearMonth.now().getMonthValue());
-
-
-
             try {
                  System.out.println("Start making report please wait\n");
                     gDocsModule.beatSheets(link,dateOfStartPeriod,dateOfFinishPeriod);
