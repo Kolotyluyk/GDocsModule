@@ -1,4 +1,4 @@
-package googleWorker;
+package domain;
 
 /**
  * Created by Сергій on 02.06.2017.

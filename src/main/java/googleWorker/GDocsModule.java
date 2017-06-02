@@ -15,6 +15,7 @@ import com.google.api.services.drive.DriveScopes;
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.SheetsScopes;
 import com.google.api.services.sheets.v4.model.*;
+import domain.SheetRange;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
