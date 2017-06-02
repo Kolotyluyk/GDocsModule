@@ -263,8 +263,8 @@ public class GDocsModule {
 							{
 							List<ValueRange> childList = new ArrayList<ValueRange>();
 							String childId = null;
-							String nameofSpeadSheet=row.get(1).toString();
-							if (SpreedSheetNameId.containsKey(nameofSpeadSheet)) childId = SpreedSheetNameId.get(nameofSpeadSheet);
+							String nameOfSpeadSheet=row.get(1).toString();
+							if (SpreedSheetNameId.containsKey(nameOfSpeadSheet)) childId = SpreedSheetNameId.get(nameOfSpeadSheet);
 							else try {
 								childId = createSpreadSheet(childList, row, headerValues, writer, serviceSheets,
 										SheetRange.HEADER_RANGE.getName());
