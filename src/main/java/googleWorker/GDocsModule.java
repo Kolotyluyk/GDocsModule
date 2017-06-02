@@ -41,16 +41,13 @@ public class GDocsModule {
 	private static String SHEET_ID = "";
 
 //value of range
-	static String headerRange = "A3:T3";
-	static String dataRange = "A4:Z1000";
-	static String dateRange = "B1:B1";
-	static String countOfDayRange = "T1:T1";
-	static String exchangeRateRange = "T3:T3";
 
 
-	public static List<String> localMonth = Arrays.asList("Січень", "Лютий", "Березень", "Квітень", "Травень", "Червень", "Липень", "Серпень", "Вересень", "Жовтень", "Листопад", "Грудень");
-
+	public static Map<Integer,String> localMonth = new HashMap<>();
 	static {
+		List monthList=Arrays.asList("Січень", "Лютий", "Березень", "Квітень", "Травень", "Червень", "Липень", "Серпень", "Вересень", "Жовтень", "Листопад", "Грудень");
+
+		localMonth= (Map<Integer, String>) monthList.stream().collect(Collectors.toMap(month->monthList.indexOf(month)+1, month->month));
 		try {
 			HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
 			DATA_STORE_FACTORY = new FileDataStoreFactory(DATA_STORE_DIR);
@@ -60,29 +57,41 @@ public class GDocsModule {
 		}
 	}
 //connect to google doc using client_id and client_secret from client_secret.json
-	private Credential authorize() throws Exception {
+	private Credential authorize()  {
 		InputStream in = GDocsModule.class.getResourceAsStream("/client_secret.json");
 		GoogleClientSecrets clientSecrets =
-				GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(in));
+				null;
+		Credential credential = null;
+		try {
+			clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(in));
+
 		GoogleAuthorizationCodeFlow flow =
 				new GoogleAuthorizationCodeFlow.Builder(
 						HTTP_TRANSPORT, JSON_FACTORY, clientSecrets, SCOPES_SHEETS)
 						.setDataStoreFactory(DATA_STORE_FACTORY)
 						.setAccessType("offline")
 						.build();
-		Credential credential = new AuthorizationCodeInstalledApp(
+		credential = new AuthorizationCodeInstalledApp(
 				flow, new LocalServerReceiver()).authorize("user");
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.out.print("No found client_secret.json");
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.out.print("No found client_secret.json");
+		}
+
 		return credential;
 	}
 
-	private  Sheets getSheetsService() throws Exception {
+	private  Sheets getSheetsService(){
 		Credential credential = authorize();
 		return new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, credential)
 				.setApplicationName(APPLICATION_NAME)
 				.build();
 	}
 
-	private  Drive getDriveService() throws Exception {
+	private  Drive getDriveService() {
 		Credential credential = authorize();
 		return new Drive.Builder(HTTP_TRANSPORT, JSON_FACTORY, credential)
 				.setApplicationName(APPLICATION_NAME)
@@ -134,13 +143,13 @@ public class GDocsModule {
 	}
 
 
-	private void writeValueToSheet(List<Object> row,List<List<Object>> dateValues,List<List<Object>> countOfDayValues,
+	private void writeValueToSheet(List<Object> row,String month,List<List<Object>> countOfDayValues,
 										  List<List<Object>> exchangeRateValues, List<ValueRange> childList, String dataRange,
 										  Sheets serviceSheets, String childSpreadSheetId) throws IOException
 		{
 			List<List<Object>> pasteData = new ArrayList<>();
 			pasteData.add(row);
-			pasteData.get(0).set(0,dateValues.get(0).get(0));
+			pasteData.get(0).set(0,month);
 			pasteData.get(0).add(exchangeRateValues.get(0).get(0));
 			pasteData.get(0).add(countOfDayValues.get(0).get(0));
 
@@ -152,7 +161,7 @@ public class GDocsModule {
 				{
 					size = dataValues.size();
 				    for (List<Object> list: dataValues) {
-				    if(list.get(0).equals(dateValues.get(0).get(0)))
+				    if(list.get(0).equals(month));
 				    {flag=true;
 						size=dataValues.indexOf(list);
 						break;}
@@ -167,7 +176,7 @@ public class GDocsModule {
 			serviceSheets.spreadsheets().values().batchUpdate(childSpreadSheetId, oRequest)
 						.execute();
 			System.out.println("" +
-					"Write : "+row.get(1)+" " + dateValues.get(0).get(0));
+					"Write : "+row.get(1)+" " +month);
 	//	}
 	//	else System.out.println( "Is present "+row.get(1)+" " + dateValues.get(0).get(0));
 		}
@@ -222,7 +231,7 @@ public class GDocsModule {
 		FileWriter writer = new FileWriter(file, true);
 		Sheets serviceSheets = getSheetsService();
 		String spreadsheetId = getSheetId(link);
-			List<List<Object>> headerValues = readValue(serviceSheets, spreadsheetId, headerRange).getValues();
+			List<List<Object>> headerValues = readValue(serviceSheets, spreadsheetId, SheetRange.HEADER_RANGE.getName()).getValues();
 
 		Spreadsheet response1= serviceSheets.spreadsheets().get(spreadsheetId).setIncludeGridData(false).execute();
 		List<Sheet> workSheetList = response1.getSheets();
@@ -230,7 +239,7 @@ public class GDocsModule {
 		for (LocalDate intermidiateDate=dateOfStartPeriod;intermidiateDate.isBefore(dateOfFinishPeriod);intermidiateDate=intermidiateDate.plusMonths(1))
 					{
 					//	String localMonth=intermidiateDate.getMonth().getDisplayName(TextStyle.FULL_STANDALONE, loc);
-						String month=localMonth.get(intermidiateDate.getMonth().getValue()-1);
+						String month=localMonth.get(intermidiateDate.getMonth().getValue());
 						String year=String.valueOf(intermidiateDate.getYear());
 						String sheetName=month +" "+year;
 					if(isPresentSheet(workSheetList, month +" "+year)){
@@ -240,13 +249,13 @@ public class GDocsModule {
 						        (s -> s.substring(0, s.indexOf('|')), s -> s.substring(s.indexOf('|') + 1, s.length())));
 						//read values from sheet in preset range
 						List<List<Object>> dataValues = readValue(serviceSheets,
-							spreadsheetId, sheetName+"!" + dataRange).getValues();
-						List<List<Object>> dateValues = readValue(serviceSheets,
-							spreadsheetId,  sheetName+"!" + dateRange).getValues();
+							spreadsheetId, sheetName+"!" + SheetRange.DATA_RANGE.getName()).getValues();
+					//	List<List<Object>> dateValues = readValue(serviceSheets,
+					//		spreadsheetId,  sheetName+"!" +  SheetRange.DATE_RANGE.getName()).getValues();
 						List<List<Object>> countOfDayValues = readValue(serviceSheets,
-							spreadsheetId,  sheetName+"!" + countOfDayRange).getValues();
+							spreadsheetId,  sheetName+"!" +  SheetRange.COUNT_OF_DAY_RANGE.getName()).getValues();
 						List<List<Object>> exchangeRateValues = readValue(serviceSheets,
-							spreadsheetId,  sheetName+"!" + exchangeRateRange).getValues();
+							spreadsheetId,  sheetName+"!" +  SheetRange.EXCHANGE_RATE_RANGE.getName()).getValues();
 						//check read data not empty
 						if (dataValues == null || dataValues.size() == 0) {
 							System.out.println("No data found.");
@@ -260,13 +269,13 @@ public class GDocsModule {
 							if (SpreedSheetNameId.containsKey(nameSheet)) childId = SpreedSheetNameId.get(nameSheet);
 							else try {
 								childId = createSpreadSheet(childList, row, headerValues, writer, serviceSheets,
-									headerRange);
+										SheetRange.HEADER_RANGE.getName());
 								} catch (IOException e) {
 								e.printStackTrace();
 								}
 							try {
-							writeValueToSheet(row,dateValues,countOfDayValues,exchangeRateValues, childList, dataRange,
-									          serviceSheets, childId);
+							writeValueToSheet(row,sheetName,countOfDayValues,exchangeRateValues, childList,
+									SheetRange.DATA_RANGE.getName(),serviceSheets, childId);
 							} catch (IOException e) {
 								e.printStackTrace();
 							}

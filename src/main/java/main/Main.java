@@ -12,10 +12,25 @@ public class Main {
     private static LocalDate getStartDateperiod(String[] period){
         //check input  start data
         int year = YearMonth.now().getYear();
-        if(period.length==1 && GDocsModule.localMonth.contains(period[0]))
-            return LocalDate.of(year,GDocsModule.localMonth.indexOf(period[0])+1,1);
+        int month = 1;
+        if(period.length==1 )
+        {try {
+            if(!period[0].isEmpty())
+            month=Integer.parseInt(period[0]);
+            }catch (Exception e){
+                System.out.println("You write incorrect month start period");
+            }
+            return LocalDate.of(year, month,1);
+        }
         else
-        if (period.length==2 && GDocsModule.localMonth.contains(period[1])) return LocalDate.of(Integer.parseInt(period[0]),GDocsModule.localMonth.indexOf(period[1])+1,1);
+        if (period.length==2){
+            try {
+                month=Integer.parseInt(period[0]);
+            }catch (Exception e){
+                System.out.println("You write incorrect month start period");
+            }
+            return LocalDate.of(Integer.parseInt(period[0]),month,1);
+        }
         return LocalDate.of(year,1,1);
     }
 
@@ -23,10 +38,23 @@ public class Main {
         //check input  finish data
         int month = YearMonth.now().getMonthValue();
         int year = YearMonth.now().getYear();
-        if(period.length==1 && GDocsModule.localMonth.contains(period[0]))
-            return LocalDate.of(year,GDocsModule.localMonth.indexOf(period[0])+1,1);
-            else
-                if (period.length==2 && GDocsModule.localMonth.contains(period[1])) return LocalDate.of(Integer.parseInt(period[0]),GDocsModule.localMonth.indexOf(period[1])+1,1);
+
+        if(period.length==1 )
+        {try {
+            if(!period[0].isEmpty())
+            month=Integer.parseInt(period[0]);
+            }catch (Exception e){
+                System.out.println("You write incorrect month finish period");
+            }
+           }
+        else
+        if (period.length==2){
+            try {
+                month=Integer.parseInt(period[0]);
+            }catch (Exception e){
+                System.out.println("You write incorrect month start period");
+            }
+             }
 
         return LocalDate.of(year,month,1);
     }
