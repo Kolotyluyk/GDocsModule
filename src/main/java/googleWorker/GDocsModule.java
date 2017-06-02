@@ -235,10 +235,8 @@ public class GDocsModule {
 
 		Spreadsheet response1= serviceSheets.spreadsheets().get(spreadsheetId).setIncludeGridData(false).execute();
 		List<Sheet> workSheetList = response1.getSheets();
-		Locale loc = Locale.forLanguageTag("ua");
-		for (LocalDate intermidiateDate=dateOfStartPeriod;intermidiateDate.isBefore(dateOfFinishPeriod);intermidiateDate=intermidiateDate.plusMonths(1))
+			for (LocalDate intermidiateDate=dateOfStartPeriod;intermidiateDate.isBefore(dateOfFinishPeriod);intermidiateDate=intermidiateDate.plusMonths(1))
 					{
-					//	String localMonth=intermidiateDate.getMonth().getDisplayName(TextStyle.FULL_STANDALONE, loc);
 						String month=localMonth.get(intermidiateDate.getMonth().getValue());
 						String year=String.valueOf(intermidiateDate.getYear());
 						String sheetName=month +" "+year;
