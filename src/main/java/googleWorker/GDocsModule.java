@@ -161,7 +161,7 @@ public class GDocsModule {
 				{
 					size = dataValues.size();
 				    for (List<Object> list: dataValues) {
-				    if(list.get(0).equals(month));
+				    if(list.get(0).equals(month))
 				    {flag=true;
 						size=dataValues.indexOf(list);
 						break;}
@@ -250,8 +250,6 @@ public class GDocsModule {
 						//read values from sheet in preset range
 						List<List<Object>> dataValues = readValue(serviceSheets,
 							spreadsheetId, sheetName+"!" + SheetRange.DATA_RANGE.getName()).getValues();
-					//	List<List<Object>> dateValues = readValue(serviceSheets,
-					//		spreadsheetId,  sheetName+"!" +  SheetRange.DATE_RANGE.getName()).getValues();
 						List<List<Object>> countOfDayValues = readValue(serviceSheets,
 							spreadsheetId,  sheetName+"!" +  SheetRange.COUNT_OF_DAY_RANGE.getName()).getValues();
 						List<List<Object>> exchangeRateValues = readValue(serviceSheets,
@@ -265,8 +263,8 @@ public class GDocsModule {
 							{
 							List<ValueRange> childList = new ArrayList<ValueRange>();
 							String childId = null;
-							String nameSheet=row.get(1).toString();
-							if (SpreedSheetNameId.containsKey(nameSheet)) childId = SpreedSheetNameId.get(nameSheet);
+							String nameofSpeadSheet=row.get(1).toString();
+							if (SpreedSheetNameId.containsKey(nameofSpeadSheet)) childId = SpreedSheetNameId.get(nameofSpeadSheet);
 							else try {
 								childId = createSpreadSheet(childList, row, headerValues, writer, serviceSheets,
 										SheetRange.HEADER_RANGE.getName());
