@@ -2,33 +2,33 @@ package main;
 
 import googleWorker.GDocsModule;
 
+import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.Scanner;
 
 public class Main {
 
 
-    private static String[] formatingPeriod(String[] period){
-        String[] inputToGDoc=new String[4];
-        if(period.length==1) {
-            inputToGDoc[2] = inputToGDoc[3] = period[0];
-            inputToGDoc[0] = GDocsModule.mounth.get(0);
-            inputToGDoc[1] = GDocsModule.mounth.get(11);
-        } else
-        if(period[1].contains("2")&&period[0]!=null) {
-            inputToGDoc[3] = inputToGDoc[2] = period[1];
-            inputToGDoc[1] = inputToGDoc[0] = period[0];
-        }
+    private static LocalDate getStartDateperiod(String[] period){
+        //check input  start data
+        int year = YearMonth.now().getYear();
+        if(period.length==1 && GDocsModule.localMonth.contains(period[0]))
+            return LocalDate.of(year,GDocsModule.localMonth.indexOf(period[0])+1,1);
         else
-        if(period.length==3) {
-            inputToGDoc[3] = inputToGDoc[2] = period[2];
-            inputToGDoc[0] = period[0];
-            inputToGDoc[1] = period[1];
-        }
-        else
-        if(period.length==4)
-            inputToGDoc=period;
+        if (period.length==2 && GDocsModule.localMonth.contains(period[1])) return LocalDate.of(Integer.parseInt(period[0]),GDocsModule.localMonth.indexOf(period[1])+1,1);
+        return LocalDate.of(year,1,1);
+    }
 
-        return inputToGDoc;
+    private static LocalDate getFinishDateperiod(String[] period){
+        //check input  finish data
+        int month = YearMonth.now().getMonthValue();
+        int year = YearMonth.now().getYear();
+        if(period.length==1 && GDocsModule.localMonth.contains(period[0]))
+            return LocalDate.of(year,GDocsModule.localMonth.indexOf(period[0])+1,1);
+            else
+                if (period.length==2 && GDocsModule.localMonth.contains(period[1])) return LocalDate.of(Integer.parseInt(period[0]),GDocsModule.localMonth.indexOf(period[1])+1,1);
+
+        return LocalDate.of(year,month,1);
     }
 
 	public static void main(String[] args) {
@@ -36,38 +36,31 @@ public class Main {
 		Scanner in = new Scanner(System.in);
         System.out.print("Enter Link Google Sheets: for example " +
                 "https://docs.google.com/spreadsheets/d/1YmXTemgS52vRo4f98-nGlnt9acP7bh3kzLfr9gpK9lA/edit#gid=806350235\n");
-       String LINK = in.nextLine();
-        System.out.print("\nEnter command:");
-        String comand = in.nextLine();
-        String[] period=null;
-        //check input data
-         switch (comand)
-        {
-            case "whole" :
-                try {
-                    period= GDocsModule.getWorkSheetPeriod(LINK);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                break;
-            case "":
-                try {
-                    period= GDocsModule.getWorkSheetPeriod(LINK);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                break;
-            default:
-                period=formatingPeriod(comand.split(" "));
-                  break;
-        }
+       String link = in.nextLine();
+        System.out.print("\npossible format:\n" +
+                "StartMonth StartYear\n" +
+                "StartMonth\n" +
+                "nothing- in this way start date is first localMonth of current year \n");
+        System.out.print("\nEnter start period:");
+        String startPeriod = in.nextLine();
+        System.out.print("\npossible format:\n" +
+                "FinishMonth FinishYear\n" +
+                "FinishMonth\n" +
+                "nothing- in this way finish of period is first localMonth of current year \n");
+
+        System.out.print("\nEnter finish period:");
+        String finishPeriod = in.nextLine();
+
+
+        LocalDate dateOfStartPeriod=getStartDateperiod(startPeriod.split(" "));
+        LocalDate dateOfFinishPeriod=getFinishDateperiod(finishPeriod.split(" "));
+
 
             try {
-                System.out.println("Start making report please wait\n");
-                    GDocsModule.beatSheets(LINK,period[0],period[1],Integer.parseInt(period[2]),Integer.parseInt(period[3]));
+                 System.out.println("Start making report please wait\n");
+                    gDocsModule.beatSheets(link,dateOfStartPeriod,dateOfFinishPeriod);
                     System.out.println("Finish program");
                 } catch (Exception e) {
-
                     e.printStackTrace();
                 }
 	}
