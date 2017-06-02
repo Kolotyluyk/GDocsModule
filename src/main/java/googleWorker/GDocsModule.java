@@ -60,7 +60,7 @@ public class GDocsModule {
 		}
 	}
 //connect to google doc using client_id and client_secret from client_secret.json
-	private static Credential authorize() throws Exception {
+	private Credential authorize() throws Exception {
 		InputStream in = GDocsModule.class.getResourceAsStream("/client_secret.json");
 		GoogleClientSecrets clientSecrets =
 				GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(in));
@@ -75,21 +75,21 @@ public class GDocsModule {
 		return credential;
 	}
 
-	private static Sheets getSheetsService() throws Exception {
+	private  Sheets getSheetsService() throws Exception {
 		Credential credential = authorize();
 		return new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, credential)
 				.setApplicationName(APPLICATION_NAME)
 				.build();
 	}
 
-	private static Drive getDriveService() throws Exception {
+	private  Drive getDriveService() throws Exception {
 		Credential credential = authorize();
 		return new Drive.Builder(HTTP_TRANSPORT, JSON_FACTORY, credential)
 				.setApplicationName(APPLICATION_NAME)
 				.build();
 	}
 
-	private static void deleteFile(Drive service, String fileId) {
+	private  void deleteFile(Drive service, String fileId) {
 		try {
 			service.files().delete(fileId).execute();
 		} catch (IOException e) {
@@ -97,7 +97,7 @@ public class GDocsModule {
 		}
 	}
 
-	private static String getSheetId(String link) {
+	private  String getSheetId(String link) {
 		Matcher matcher = sheetId.matcher(link);
 		if (matcher.find()) {
 			SHEET_ID = matcher.group(1);
@@ -106,14 +106,14 @@ public class GDocsModule {
 	}
 
 	//read from google sheet
-	private static ValueRange readValue(Sheets serviceSheets, String spreadsheetId, String range) throws IOException {
+	private  ValueRange readValue(Sheets serviceSheets, String spreadsheetId, String range) throws IOException {
 		return serviceSheets.spreadsheets().values()
 				.get(spreadsheetId, range)
 				.setPrettyPrint(true)
 				.execute();
 		}
 
-	private static String createSpreadSheet(List<ValueRange> childList, List<Object> row, List<List<Object>> headerValues,
+	private String createSpreadSheet(List<ValueRange> childList, List<Object> row, List<List<Object>> headerValues,
 											FileWriter WRITER, Sheets serviceSheets, String headerRange
 											) throws IOException {
 		headerValues.get(0).set(19,"Кількіть днів");
@@ -134,7 +134,7 @@ public class GDocsModule {
 	}
 
 
-	private static void writeValueToSheet(List<Object> row,List<List<Object>> dateValues,List<List<Object>> countOfDayValues,
+	private void writeValueToSheet(List<Object> row,List<List<Object>> dateValues,List<List<Object>> countOfDayValues,
 										  List<List<Object>> exchangeRateValues, List<ValueRange> childList, String dataRange,
 										  Sheets serviceSheets, String childSpreadSheetId) throws IOException
 		{
@@ -174,7 +174,7 @@ public class GDocsModule {
 
 
 
-	public static LocalDate getStartWorkSheetPeriod(String link) throws Exception {
+	public LocalDate getStartWorkSheetPeriod(String link) throws Exception {
 		Sheets serviceSheets = getSheetsService();
 		String spreadsheetId = getSheetId(link);
 		Spreadsheet response1= serviceSheets.spreadsheets().get(spreadsheetId).setIncludeGridData (false).execute ();
@@ -191,7 +191,7 @@ public class GDocsModule {
 		return beginingDate;
 	}
 
-	public static LocalDate getFinishWorkSheetPeriod(String link) throws Exception {
+	public LocalDate getFinishWorkSheetPeriod(String link) throws Exception {
 		Sheets serviceSheets = getSheetsService();
 		String spreadsheetId = getSheetId(link);
 		Spreadsheet response1= serviceSheets.spreadsheets().get(spreadsheetId).setIncludeGridData (false).execute ();
@@ -209,7 +209,7 @@ public class GDocsModule {
 	}
 
 
-	private static boolean isPresentSheet(List<Sheet> workSheetList,String nameSheet ){
+	private boolean isPresentSheet(List<Sheet> workSheetList,String nameSheet ){
 	for (Sheet sheet : workSheetList){
 			if(sheet.getProperties().getTitle().equals(nameSheet))
 			return true;
