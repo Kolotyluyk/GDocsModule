@@ -124,7 +124,7 @@ public class GDocsModule {
 		}
 
 	private String createSpreadSheet(List<ValueRange> childList, List<Object> row, List<List<Object>> headerValues,
-											FileWriter WRITER, Sheets serviceSheets, String headerRange
+											FileWriter writer, Sheets serviceSheets, String headerRange
 											) throws IOException {
 		headerValues.get(0).set(19,"Кількіть днів");
 		ValueRange headValueRange = new ValueRange().setRange(headerRange).setValues(headerValues);
@@ -137,8 +137,8 @@ public class GDocsModule {
 				.create(spreadsheet)
 				.execute()
 				.getSpreadsheetId();
-		WRITER.write(nameSheet + "|" + childSpreadSheetId + "\n");
-		WRITER.flush();
+		writer.write(nameSheet + "|" + childSpreadSheetId + "\n");
+		writer.flush();
 		System.out.println("Document " + nameSheet + " successfully create");
 		return childSpreadSheetId;
 	}
